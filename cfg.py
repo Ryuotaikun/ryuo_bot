@@ -1,16 +1,18 @@
 # cfg.py
 import sys
 
-if len(sys.argv) == 1: sys.exit("ERROR: Enter a channel to connect to")
+#NICK  =  Twitch username, lowercase
+#PASS  =  Twitch OAuth token
 
 HOST  = "irc.chat.twitch.tv"                   # The Twitch IRC server
 PORT  = 6667                                   # Always use 6667!
-NICK  = "ryuobot"                              # Twitch username, lowercase
-PASS  = "oauth:gkdugla3zz2hq3tzr0spu90hizgn4o" # Twitch OAuth token
 CHAN  = "#" + sys.argv[1]                      # Twitch channel
 RATE  = (20/30)                                # Messages per second
 MOD   = False                                  # Default Moderator
 DEBUG = False                                  # Default Debug
+
+#check arguments given
+if len(sys.argv) == 1: sys.exit("ERROR: Enter a channel to connect to")
 
 print("Connecting to " + CHAN + "...")
 
@@ -43,9 +45,7 @@ CHARS = [
 ]
 
 PATT = [
-    #r"swear",
-    # ...
-    #r"some_pattern"
+    #Make sure to prefix quotes with an 'r' to make sure re handels . , - etc!
     r"https://",
     r"www.",
     r".com", r".de", r".org", r".gov"

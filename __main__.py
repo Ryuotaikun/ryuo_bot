@@ -4,6 +4,7 @@
 #With Help from iamflemming
 
 # __main__.py
+import priv
 import cfg
 import socket
 import re
@@ -11,10 +12,11 @@ import time
 import interactions
 import keyboard
 
+#connect to server
 s = socket.socket()
 s.connect((cfg.HOST, cfg.PORT))
-s.send("PASS {}\r\n".format(cfg.PASS).encode("utf-8"))
-s.send("NICK {}\r\n".format(cfg.NICK).encode("utf-8"))
+s.send("PASS {}\r\n".format(priv.PASS).encode("utf-8"))
+s.send("NICK {}\r\n".format(priv.NICK).encode("utf-8"))
 s.send("JOIN {}\r\n".format(cfg.CHAN).encode("utf-8"))
 
 readBuffer = ""
@@ -23,10 +25,6 @@ alreadyGreeted = ["ryuotaikun"]
 n=0
 
 while True:
-
-    #Make sure to prefix quotes with an 'r' to make sure re handels . , - etc!
-    #if re.search(re.compile(r"^\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :"))
-#if re.match("PRIVMSG", re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")) != None:
 
     readBuffer = readBuffer + s.recv(4096).decode("utf-8")
     messageList = readBuffer.split("\r\n")
