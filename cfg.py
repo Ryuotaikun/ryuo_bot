@@ -10,6 +10,7 @@ CHAN  = "#" + sys.argv[1]                      # Twitch channel
 RATE  = (20/30)                                # Messages per second
 MOD   = False                                  # Default Moderator
 DEBUG = False                                  # Default Debug
+OWNER = "ryuotaikun"                           # Set your Twitch Name
 
 #check arguments given
 if len(sys.argv) == 1: sys.exit("ERROR: Enter a channel to connect to")

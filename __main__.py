@@ -1,7 +1,7 @@
-#twitchbot RyuoBot
+# twitchbot RyuoBot
 
-#Developed by Ryuotaikun
-#With Help from iamflemming
+# Developed by Ryuotaikun
+# With Help from iamflemming
 
 # __main__.py
 import priv
@@ -10,9 +10,8 @@ import socket
 import re
 import time
 import interactions
-import keyboard
 
-#connect to server
+# connect to server
 s = socket.socket()
 s.connect((cfg.HOST, cfg.PORT))
 s.send("PASS {}\r\n".format(priv.PASS).encode("utf-8"))
@@ -21,7 +20,7 @@ s.send("JOIN {}\r\n".format(cfg.CHAN).encode("utf-8"))
 
 readBuffer = ""
 permittedUser = []
-alreadyGreeted = ["ryuotaikun"]
+alreadyGreeted = [cfg.OWNER]
 n=0
 
 while True:
@@ -31,11 +30,6 @@ while True:
     readBuffer = messageList.pop()
 
     CHAT_MSG = re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
-    #CHAT_SUB = re.compile()
-
-
-    if keyboard.is_pressed(' ') != False:
-        interactions.chat(s, input("what to send?"))
 
     for bitMessage in messageList:
         if cfg.DEBUG:
@@ -48,48 +42,41 @@ while True:
             s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
 
         else:
-            currentTime = cfg.COLOR['cyan'] + "[" + time.strftime("%H:%M:%S") + "]" + cfg.COLOR['end']
-            username = cfg.COLOR['red'] + re.search(r"\w+", bitMessage).group(0) + cfg.COLOR['end']
-            message = cfg.COLOR['blue'] + CHAT_MSG.sub("", bitMessage) + cfg.COLOR['end']
-            #currentTime = "[" + time.strftime("%H:%M:%S") + "]"
-            #username = re.search(r"\w+", bitMessage).group(0)
-            #message = CHAT_MSG.sub("", bitMessage)
+            currentTime = "[" + time.strftime("%H:%M:%S") + "]"
+            username = re.search(r"\w+", bitMessage).group(0)
+            message = CHAT_MSG.sub("", bitMessage)
             print(currentTime + " " + username + ": " + message)
 
-            #reacting to subscrptions
-            #subscription = CHAT_SUB.sub("", bitMessage)
-            #if subscription != "\r\n":
-            #    print("user -" + username + "- just subscribed to the channel")
-
-            #if re.search("KAPOW", message) != None:
-            #    interactions.chat(s, "KAPOW")
-
-            if username == "ryuotaikun" and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
+            if username == cfg.OWNER and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
                 interactions.chat(s, 10 * "lowVe lowHeart ")
 
-            if username == "ryuotaikun" and re.search("KAPOW", message) != None:
+            if username == cfg.OWNER and re.search("KAPOW", message) != None:
                 interactions.chat(s, "KAPOW")
 
-            if username == "ryuotaikun" and re.search("lowAim", message) != None:
+            if username == cfg.OWNER and re.search("lowAim", message) != None:
                 interactions.chat(s, "lowBlind")
 
-            if username == "ryuotaikun" and re.search("lowBlind", message) != None:
+            if username == cfg.OWNER and re.search("lowBlind", message) != None:
                 interactions.chat(s, "lowAim")
 
-            # Greetings
-            """
+            # Greets every user greeting the owner once
             for greetings in cfg.GREET:
                 for character in cfg.CHARS:
                     if re.search(greetings, message.lower()) != None and re.search(character, message.lower()) != None and username not in alreadyGreeted:
-                        interactions.chat(s, "lowHi " + username)
+                        interactions.chat(s, "Hey " + username + " <3")
                         alreadyGreeted.append(username)
                         break
-            """
 
+            ################
             # MOD COMMANDS #
+            ################
+
+            # This part will only run if the Bot is set as Admin in cfg and he
+            # is actually a twitch mod in the connected channel.
+
             if cfg.MOD:
 
-                #timeout bad words and links
+                # timeout bad words and links
                 for pattern in cfg.PATT :
                     if pattern in message:
                         if username not in permittedUser:
@@ -102,10 +89,7 @@ while True:
                             permittedUser.remove(username)
                             break
 
-                #handle commands available to all viewers
-                if re.search("!vote", message) != None:
-                    interactions.chat(s, "The vote for Nation Wars V is over. You can see the results here: http://www.nationwars.tv/vote SC20terran")
-
+                # handle commands available to all viewers
                 if re.search("!drops", message) != None:
                     interactions.chat(s, "Make sure you have Battlenet connected to Twitch to get free ingame loot while watching SC2, SC:R and SC streams: https://www.starcraft2.com/en-/us/news/21590508 SC20protoss")
 
@@ -115,11 +99,12 @@ while True:
                 if re.search("!donation", message) != None or re.search ("!tip", message) != None:
                     interactions.chat(s, "If you feel like having too much money you can take the weight off by donating a small amount: https://www.streamlabs.com/ryuotaikun SC20zerg SC20terran")
 
-                #permit users to post links
+                # permit users to post links
                 if re.search("!permit", message) != None and username in cfg.ADMIN:
                     userToPermit = re.sub("!permit ", "", message)[:-2]
                     permittedUser.append(userToPermit)
                     print("user -" + userToPermit + "- got permisson to post a link.")
                     interactions.chat(s, userToPermit + " has permission to post a link.")
 
+    # make sure the bot doesn't get banned for spamming
     time.sleep(1/cfg.RATE)
