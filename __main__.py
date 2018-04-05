@@ -21,7 +21,6 @@ s.send("JOIN {}\r\n".format(cfg.CHAN).encode("utf-8"))
 readBuffer = ""
 permittedUser = []
 alreadyGreeted = [cfg.OWNER]
-n=0
 
 while True:
 
@@ -33,9 +32,7 @@ while True:
 
     for bitMessage in messageList:
         if cfg.DEBUG:
-            print("=====================")
             print(re.sub("\r\n", "", bitMessage))
-            print("=====================")
 
         # Ping to Twitch
         if bitMessage == "PING :tmi.twitch.tv":
@@ -71,7 +68,7 @@ while True:
             # MOD COMMANDS #
             ################
 
-            # This part will only run if the Bot is set as Admin in cfg and he
+            # This part will only run if the Bot is set as Admin in cfg and it
             # is actually a twitch mod in the connected channel.
 
             if cfg.MOD:

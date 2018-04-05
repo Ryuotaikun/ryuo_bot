@@ -12,7 +12,7 @@ MOD   = False                                  # Default Moderator
 DEBUG = False                                  # Default Debug
 OWNER = "ryuotaikun"                           # Set your Twitch Name
 
-#check arguments given
+# check arguments given
 if len(sys.argv) == 1: sys.exit("ERROR: Enter a channel to connect to")
 
 print("Connecting to " + CHAN + "...")
@@ -20,38 +20,39 @@ print("Connecting to " + CHAN + "...")
 MOD = CHAN == "#ryuotaikun"                    # moderator for own channel
 if MOD: print("Moderator Mode aktivated...")
 
-if len(sys.argv) > 2:                          # Enables adv. console infomrations
+if len(sys.argv) > 2:                          # Enables adv. console informations
     if sys.argv[2] == "True":
         DEBUG = True
         print("Debug Mode aktivated...")
 
-ADMIN = [
+ADMIN = [                                      # users allowed to use admin commands
     "ryuotaikun",
     "ryuobot"
 ]
 
-GREET = [
-    "( |^)lowhi( |$)",
+GREET = [                                      # greetings to react to
+    "( |^)lowhi( |$)",                         # ^ and $ for message start/end
     "( |^)hi( |$)",
     "( |^)hey( |$)",
     "( |^)o7( |$)",
     "( |^)hello( |$)"
 ]
 
-CHARS = [
+CHARS = [                                      # chars to react to
     "([ @]|^)ryuotaikun( |$)",
     "([ @]|^)ryuobot( |$)"
     "( |^)everyone( |$)",
     "( |^)chat( |$)"
 ]
 
-PATT = [
-    #Make sure to prefix quotes with an 'r' to make sure re handels . , - etc!
+PATT = [                                       # patterns to time out
+    # make sure to prefix quotes with an 'r' to make re handle . , - etc!
     r"https://",
     r"www.",
     r".com", r".de", r".org", r".gov"
 ]
 
+# tested this in the ubuntu terminal. does not work in the windows cmd
 COLOR = {
     # font colors
     'black': '\033[90m',
