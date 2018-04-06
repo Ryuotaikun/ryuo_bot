@@ -9,6 +9,7 @@ import cfg
 import socket
 import re
 import time
+import logging
 import interactions
 import multi
 
@@ -20,6 +21,9 @@ def main(): # TODO: implement multithreading and init funktion
     s.send("PASS {}\r\n".format(priv.PASS).encode("utf-8"))
     s.send("NICK {}\r\n".format(priv.NICK).encode("utf-8"))
     s.send("JOIN {}\r\n".format(cfg.CHAN).encode("utf-8"))
+
+    logging.info("Sucessfully connected to {}".format(cfg.CHAN))
+    logging.info("RyuoBot running...")
 
     readBuffer = ""
     permittedUser = []
@@ -34,34 +38,33 @@ def main(): # TODO: implement multithreading and init funktion
         CHAT_MSG = re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 
         for bitMessage in messageList:
-            if cfg.DEBUG:
 
             # Ping to Twitch
             if bitMessage == "PING :tmi.twitch.tv":
                 s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
 
             else:
-                currentTime = "[" + time.strftime("%H:%M:%S") + "]"
                 username = re.search(r"\w+", bitMessage).group(0)
                 message = CHAT_MSG.sub("", bitMessage)
 
-                if cfg.DEBUG:
-                    print(currentTime + " " + username + ": " + message)
+                logging.debug("{}: {}".format(username, message))
+
+                # TODO: Create a yaml file for commands. Implement custom commands created in chat
 
                 if username == cfg.OWNER and re.search("!connect new ", message) != None:
                     newChannel = re.sub("!connect new ", "", message)
                     enterNewChannel(newChannel)
 
-                if username == cfg.OWNER and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
-                    interactions.chat(s, 10 * "<3 <3 ")
+                elif username == cfg.OWNER and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
+                    interactions.chat(s, "<3 <3 ")
 
-                if username == cfg.OWNER and re.search("KAPOW", message) != None:
+                elif username == cfg.OWNER and re.search("KAPOW", message) != None:
                     interactions.chat(s, "KAPOW")
 
-                if username == cfg.OWNER and re.search("lowAim", message) != None:
+                elif username == cfg.OWNER and re.search("lowAim", message) != None:
                     interactions.chat(s, "lowBlind")
 
-                if username == cfg.OWNER and re.search("lowBlind", message) != None:
+                elif username == cfg.OWNER and re.search("lowBlind", message) != None:
                     interactions.chat(s, "lowAim")
 
                 # Greets every user greeting the owner once

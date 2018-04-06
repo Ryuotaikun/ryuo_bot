@@ -1,5 +1,11 @@
 # cfg.py
 import sys
+import logging
+
+# check arguments given
+if len(sys.argv) == 1:
+    logging.critical("Missing channel to connect!")
+    sys.exit()
 
 #NICK  =  Twitch username, lowercase
 #PASS  =  Twitch OAuth token
@@ -12,18 +18,17 @@ MOD   = False                                  # Default Moderator
 DEBUG = False                                  # Default Debug
 OWNER = "ryuotaikun"                           # Set your Twitch Name
 
-# check arguments given
-if len(sys.argv) == 1: sys.exit("ERROR: Enter a channel to connect to")
-
-print("Connecting to " + CHAN + "...")
-
-MOD = CHAN == '#'+OWNER                   # moderator for own channel
-if MOD: print("Moderator Mode aktivated...")
-
-if len(sys.argv) > 2:                          # Enables adv. console informations
+if len(sys.argv) > 2:                          # Setting logging level
     if sys.argv[2] == "True":
-        DEBUG = True
-        print("Debug Mode aktivated...")
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+        logging.info("Debug Mode aktivated")
+else:
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+
+logging.info("Connecting to {}".format(CHAN))
+
+MOD = CHAN == '#'+OWNER                        # moderator for own channel
+if MOD: logging.info("Moderator Mode aktivated")
 
 ADMIN = [                                      # users allowed to use admin commands
     "ryuotaikun",

@@ -3,3 +3,6 @@
 
 # ignore priv.py
 priv.py
+
+# ignore log files
+*.log

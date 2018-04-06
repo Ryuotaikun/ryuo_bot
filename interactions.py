@@ -1,5 +1,6 @@
 import cfg
 import time
+import logging
 
 def chat(sock, msg):
     """
@@ -9,6 +10,7 @@ def chat(sock, msg):
     msg  -- the message to be send
     """
     sock.send("PRIVMSG {} :{}\r\n".format(cfg.CHAN, msg).encode())
+    logging.info("RyuoBot: {}".format(msg))
 
 def ban(sock, user):
     """
@@ -18,6 +20,7 @@ def ban(sock, user):
     user -- the user to be banned
     """
     chat(sock, ".ban {}\r\n".format(user))
+    logging.info("banned user {} from channel {}".format(user, cfg.CHAN))
 
 
 def timeout(sock, user, secs=600):
@@ -29,3 +32,4 @@ def timeout(sock, user, secs=600):
     secs -- the length of the timeout in seconds (default 600)
     """
     chat(sock, ".timeout {} {}\r\n".format(user, secs))
+    logging.info("timed out user {} for {} seconds".format(user, secs))
