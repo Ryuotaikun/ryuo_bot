@@ -17,7 +17,7 @@ if len(sys.argv) == 1: sys.exit("ERROR: Enter a channel to connect to")
 
 print("Connecting to " + CHAN + "...")
 
-MOD = CHAN == "#ryuotaikun"                    # moderator for own channel
+MOD = CHAN == '#'+OWNER                   # moderator for own channel
 if MOD: print("Moderator Mode aktivated...")
 
 if len(sys.argv) > 2:                          # Enables adv. console informations
