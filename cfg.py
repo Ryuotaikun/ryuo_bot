@@ -4,6 +4,7 @@ import logging
 
 # check arguments given
 if len(sys.argv) == 1:
+    print("CRITICAL ERROR: Missing channel to connect!")
     logging.critical("Missing channel to connect!")
     sys.exit()
 
@@ -20,7 +21,8 @@ OWNER = "ryuotaikun"                           # Set your Twitch Name
 
 if len(sys.argv) > 2:                          # Setting logging level
     if sys.argv[2] == "True":
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+        logging.basicConfig(filename='test.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+        print("Debug Mode activated")
         logging.info("Debug Mode aktivated")
 else:
     logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
