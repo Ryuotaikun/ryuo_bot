@@ -4,6 +4,12 @@ Functions include:
 - Tracking chat history
 - Timing out links and banned words
 - Reacting to custom commands (still hardcoded)
+- Reacting to subscriptions
+
+NOTE:
+At all times, if the bot is going rouge it can be removed from a channel by
+typing "!ryuo exit" in the chat. This command is only available to the
+moderators and the owner of a channel.
 
 Set Up:
 - Create a new folder <fol_name> for the bot and copy the files in
