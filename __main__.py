@@ -11,7 +11,6 @@ import re
 import time
 import logging
 import interactions
-import multi
 
 # open socket
 sock = interactions.openSocket()
@@ -40,66 +39,45 @@ def main(): # TODO: implement multithreading and init funktion
             # Ping to Twitch
             if bitMessage == "PING :tmi.twitch.tv":
                 sock.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
+                print("PONG")
+
+            # Handle Private Messages
 
             elif re.search("PRIVMSG", bitMessage) != None:
 
             # @badges=<badges>;color=<color>;display-name=<display-name>;emotes=<emotes>;id=<id-of-msg>;mod=<mod>;room-id=<room-id>;subscriber=<subscriber>;tmi-sent-ts=<timestamp>;turbo=<turbo>;user-id=<user-id>;user-type=<user-type> :<user>!<user>@<user>.tmi.twitch.tv PRIVMSG #<channel> :<message>
+                CHAT_MSG_COMPILE = re.compile(r":\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 
-                dataList = bitMessage.split(";")
+                msgInfo, msgSpace, msgContent = bitMessage.partition(" ")
 
-                if re.search("bits", dataList[1]) != None: # bits message
-                    pass
-                else:
-                    if re.search("moderator", dataList[0]) != None:
-                        display_name = re.sub("display-name=", "", dataList[4])
-                        mod = (re.sub("mod=", "", dataList[5]) == 1)
-                        subscriber = (re.sub("subscriber=", "", dataList[8]) == 1)
-                    else:
-                        display_name = re.sub("display-name=", "", dataList[2])
-                        mod = (re.sub("mod=", "", dataList[5]) == 1)
-                        subscriber = (re.sub("subscriber=", "", dataList[7]) == 1)
+                attrDict = {}
+                for attribute in msgInfo.split(";"):
+                    key, sep, value = attribute.partition("=")
+                    attrDict[key] = value
 
-                    message_index = 11
-                    if dataList[1] == "emote-only=1":
-                        message_index = 12
+                logging.debug(msgInfo)
 
-                    if (re.sub("user-type=", "", dataList[message_index])[0]) == " ":
-                        CHAT_MSG = re.compile(r"^\w+-\w+= :\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
-                    else:
-                        CHAT_MSG = re.compile(r"^\w+-\w+=\w+ :\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
+                username = msgContent.split("!")[0][1:]
+                message = CHAT_MSG_COMPILE.sub("", msgContent)
 
-                    message = CHAT_MSG.sub("", dataList[message_index])
-
-                    print("{:<20}: {}".format(display_name, message))
-
-                    if display_name == "Ryuotaikun" or mod == True:
-                        if re.search("!ryuo off", message):
-                            interactions.disconnectChannel(sock, "#lowkotv")
-
-
-            #elif re.search("USERNOTICE", bitMessage) != None:
-
-
-            #elif re.search("USERSTATE", bitMessage) != None:
-
-
-            #elif re.search("")
-
-            else:
-                username = bitMessage
-                message = bitMessage
-                #if re.search("PRIVMSG", message) != None:
-                #    message = CHAT_MSG.sub("", bitMessage)
-
-                print(message)
+                logging.info("{:<20}: {}".format(username, message))
+                print("{:<20}: {}".format(username, message))
 
                 # TODO: Create a yaml file for commands. Implement custom commands created in chat
 
-                if username == cfg.OWNER and re.search("!connect new ", message) != None:
-                    newChannel = re.sub("!connect new ", "", message)
-                    enterNewChannel(newChannel)
+                if re.search("!ryuo exit", message) != None:
+                    if username == "nukeofficial":
+                        interactions.chat(sock, "I don't take commands from a pleb like NukeOfficial WutFace")
+                    elif username == cfg.OWNER or username == cfg.CHAN[1:] or attrDict["mod"] == "1":
+                        interactions.disconnectChannel(sock, cfg.CHAN)
 
-                elif username == cfg.OWNER and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
+                if username == cfg.OWNER and re.search("!connect new ", message) != None:
+                    newChannel = "#" + re.sub("!connect new ", "", message)
+                    interactions.connectChannel(sock, newChannel)
+
+                # fun commands for me
+
+                if username == cfg.OWNER and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
                     interactions.chat(sock, "<3 <3 ")
 
                 elif username == cfg.OWNER and re.search("KAPOW", message) != None:
@@ -111,15 +89,8 @@ def main(): # TODO: implement multithreading and init funktion
                 elif username == cfg.OWNER and re.search("lowBlind", message) != None:
                     interactions.chat(sock, "lowAim")
 
-                # Greets every user greeting the owner once
-                '''
-                for greetings in cfg.GREET:
-                    for character in cfg.CHARS:
-                        if re.search(greetings, message.lower()) != None and re.search(character, message.lower()) != None and username not in alreadyGreeted:
-                            interactions.chat(sock, "Hey " + username + " <3")
-                            alreadyGreeted.append(username)
-                            break
-                '''
+                elif re.search("!ryuos wive", message) != None:
+                    interactions.chat(sock, "That's rushIchiroSC2 of course <3")
 
                 ################
                 # MOD COMMANDS #
@@ -143,16 +114,6 @@ def main(): # TODO: implement multithreading and init funktion
                                 permittedUser.remove(username)
                                 break
 
-                    # handle commands available to all viewers
-                    if re.search("!drops", message) != None:
-                        interactions.chat(sock, "Make sure you have Battlenet connected to Twitch to get free ingame loot while watching SC2, SC:R and SC streams: https://www.starcraft2.com/en-/us/news/21590508 SC20protoss")
-
-                    if re.search("!mmr", message) != None:
-                        interactions.chat(sock, "EU: 4050; NA: 3400 (provisional) SC20zerg")
-
-                    if re.search("!donation", message) != None or re.search ("!tip", message) != None:
-                        interactions.chat(sock, "If you feel like having too much money you can take the weight off by donating a small amount: https://www.streamlabs.com/ryuotaikun SC20zerg SC20terran")
-
                     # permit users to post links
                     if re.search("!permit", message) != None and username in cfg.ADMIN:
                         userToPermit = re.sub("!permit ", "", message)[:-2]
@@ -160,11 +121,74 @@ def main(): # TODO: implement multithreading and init funktion
                         print("user -" + userToPermit + "- got permisson to post a link.")
                         interactions.chat(s, userToPermit + " has permission to post a link.")
 
+                    # handle commands available to all viewers
+                    if re.search("!mmr", message) != None:
+                        interactions.chat(sock, "EU: 4150; NA: 3400 (provisional)")
+
+                    if re.search("!donation", message) != None or re.search ("!tip", message) != None:
+                        interactions.chat(sock, "If you feel like having too much money you can take the weight off by donating a small amount: https://www.streamlabs.com/ryuotaikun")
+
+            # Handle User Informations
+
+            elif re.search("USERNOTICE", bitMessage) != None:
+
+                CHAT_NOTICE_COMPILE = re.compile(r"\.tmi\.twitch\.tv USERNOTICE #\w+ :")
+
+                noticeInfo, noticeSpace, noticeContent = bitMessage.partition(" ")
+
+                attrDict = {}
+                for attribute in noticeInfo.split(";"):
+                    key, sep, value = attribute.partition("=")
+                    attrDict[key] = value
+
+                display_name = attrDict["display-name"]
+                sub_type = attrDict["msg-id"]
+                sub_tier = attrDict["msg-param-sub-plan"]
+
+                if sub_type == "sub":
+                    #interactions.chat(sock, "Thank you for your sub {}! KAPOW".format(display_name))
+                    interactions.chat(sock, "KAPOW")
+
+                elif sub_type == "resub":
+                    sub_duration = int(attrDict["msg-param-months"])
+                    if sub_duration > 10:
+                        sub_duration = 10
+                    #interactions.chat(sock, "Thank you for your {} months resub {}! KAPOW".format(sub_duration, display_name))
+                    interactions.chat(sock, sub_duration * "KAPOW ")
+
+                elif sub_type == "subgift":
+                    sub_recipient = attrDict["msg-param-recipient-user-name"]
+                    #interactions.chat(sock, "Thank you {} for gifting a sub to {}! KAPOW".format(display_name, sub_recipient))
+                    interactions.chat(sock, "KAPOW")
+
+            # Handle User Informations
+
+            elif re.search("USERSTATE", bitMessage) != None:
+                pass
+
+            # Handle Channel Informations
+
+            elif re.search("ROOMSTATE", bitMessage) != None:
+                pass
+
+            # Handle Channel Informations
+
+            elif re.search("MODE", bitMessage) != None:
+                pass
+
+            # Handle Users Joining/Disconnecting
+
+            elif re.search("JOIN", bitMessage) != None or re.search("PART", bitMessage) != None:
+                #if re.search("JOIN", bitMessage) and re.search("ryuotaikun", bitMessage):
+                #    interactions.chat(sock, "All hail the god of social incompetence, Ryuotaikun! DendiFace")
+                pass
+
+            # Printing all other Messages for Debugging
+
+            else:
+                print(bitMessage)
+
         # make sure the bot doesn't get banned for spamming
         time.sleep(1/cfg.RATE)
-
-def enterNewChannel(channel):
-    print("Trying to connect to {}".format(channel))
-    #interactions.connect(s, channel)
 
 main()

@@ -21,11 +21,11 @@ OWNER = "ryuotaikun"                           # Set your Twitch Name
 
 if len(sys.argv) > 2:                          # Setting logging level
     if sys.argv[2] == "True":
-        logging.basicConfig(filename='test.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+        logging.basicConfig(filename='ryuobot.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
         print("Debug Mode activated")
         logging.info("Debug Mode aktivated")
 else:
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+    logging.basicConfig(filename='ryuobot.log', level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 logging.info("Connecting to {}".format(CHAN))
 
