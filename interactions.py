@@ -24,6 +24,20 @@ def openSocket():
 
     return sock
 
+def closeSocket(sock):
+    """
+    Closes Socket
+    Keyword arguments:
+    sock -- the socket to close
+    """
+    try:
+        sock.close()
+        logging.info("The socket has been closed")
+        print("The socket has been closed")
+    except Exception as e:
+        logging.error("Could not close socket")
+        print("Could not close socket")
+
 def connectChannel(sock, chan):
     """
     Connects to the Twitch IRC
@@ -33,10 +47,8 @@ def connectChannel(sock, chan):
     """
     sock.send("JOIN {}\r\n".format(chan).encode("utf-8"))
 
-    print("Sucessfully connected to {}".format(chan))
-    logging.info("Sucessfully connected to {}".format(chan))
-
-    #chat(sock, "L to the Owko - OWO")
+    print("Successfully connected to {}".format(chan))
+    logging.info("Successfully connected to {}".format(chan))
 
 def disconnectChannel(sock, chan):
     """
@@ -45,13 +57,11 @@ def disconnectChannel(sock, chan):
     chan -- the channel from which to disconnect
     sock -- the socket over which to send the disconnect request
     """
-    chat(sock, "good night everyone <3")
+    chat(sock, chan, "good night everyone <3")
     sock.send("PART {}\r\n".format(chan).encode("utf-8"))
 
-    print("Sucessfully disconnected from {}".format(chan))
-    logging.info("Sucessfully disconnected from {}".format(chan))
-
-    sys.exit()
+    print("Successfully disconnected from {}".format(chan))
+    logging.info("Successfully disconnected from {}".format(chan))
 
 def chat(sock, chan, msg):
     """

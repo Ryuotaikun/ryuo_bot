@@ -11,16 +11,18 @@ class chatbot(Thread):
 
     def __init__(self, chan):
         Thread.__init__(self)
+        self.active = True
         self.sock = interactions.openSocket()
         self.setName(chan)
+        self.chan = chan
         self.readBuffer = ""
         self.permittedUser = []
 
     def run(self):
 
-        interactions.connectChannel(self.sock, self.getName())
+        interactions.connectChannel(self.sock, self.chan)
 
-        while True:
+        while self.active:
 
             self.readBuffer = self.readBuffer + self.sock.recv(4096).decode()
             self.messageList = self.readBuffer.split("\n")
@@ -54,16 +56,18 @@ class chatbot(Thread):
                     username = msgContent.split("!")[0][1:]
                     message = CHAT_MSG_COMPILE.sub("", msgContent)
 
-                    logging.info("{:<11} - {:<10}: {}".format(self.getName()[:11], username[:10], message))
-                    print("{:<11} - {:<10}: {}".format(self.getName()[:11], username[:10], message))
+                    logging.info("{:<11} - {:<10}: {}".format(self.chan[:11], username[:10], message))
+                    print("{:<11} - {:<10}: {}".format(self.chan[:11], username[:10], message))
 
                     # TODO: Create a yaml file for commands. Implement custom commands created in chat
 
                     if re.search("!ryuo exit", message) != None:
                         if username == "nukeofficial":
                             interactions.chat(self.sock, "I don't take commands from a pleb like NukeOfficial WutFace")
-                        elif username == cfg.OWNER or username == self.getName()[1:] or attrDict["mod"] == "1":
-                            interactions.disconnectChannel(self.sock, cfg.CHAN)
+                        elif username == cfg.OWNER or username == self.chan[1:] or attrDict["mod"] == "1":
+                            interactions.disconnectChannel(self.sock, self.chan)
+                            interactions.closeSocket(self.sock)
+                            self.active = False
 
                     if username == cfg.OWNER and re.search("!connect new ", message) != None:
                         newChannel = "#" + re.sub("!connect new ", "", message)
@@ -72,28 +76,25 @@ class chatbot(Thread):
                     # fun commands for me
 
                     if username == cfg.OWNER and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
-                        interactions.chat(self.sock, self.getName(), "<3 <3 ")
+                        interactions.chat(self.sock, self.chan, "<3 <3 ")
 
                     elif username == cfg.OWNER and re.search("KAPOW", message) != None:
-                        interactions.chat(self.sock, self.getName(), "KAPOW")
+                        interactions.chat(self.sock, self.chan, "KAPOW")
 
                     elif username == cfg.OWNER and re.search("lowAim", message) != None:
-                        interactions.chat(self.sock, self.getName(), "lowBlind")
+                        interactions.chat(self.sock, self.chan, "lowBlind")
 
                     elif username == cfg.OWNER and re.search("lowBlind", message) != None:
-                        interactions.chat(self.sock, self.getName(), "lowAim")
+                        interactions.chat(self.sock, self.chan, "lowAim")
 
                     elif re.search("!ryuos wive", message) != None:
-                        interactions.chat(self.sock, self.getName(), "That's rushIchiroSC2 of course <3")
+                        interactions.chat(self.sock, self.chan, "That's rushIchiroSC2 of course <3")
 
-                    ################
-                    # MOD COMMANDS #
-                    ################
+                    ################################
+                    # MOD COMMANDS FOR #RYUOTAIKUN #
+                    ################################
 
-                    # This part will only run if the Bot is set as Admin in cfg and it
-                    # is actually a twitch mod in the connected channel.
-
-                    if cfg.MOD:
+                    if self.chan == "#ryuotaikun\r":
 
                         # timeout bad words and links
                         for pattern in cfg.PATT :
@@ -102,7 +103,7 @@ class chatbot(Thread):
                                     print("link detected")
                                     interactions.timeout(self.sock, username, 1)
                                     print("user -" + username + "- timed out")
-                                    interactions.chat(self.sock, self.getName(), username + " please ask for permission before posting links.")
+                                    interactions.chat(self.sock, self.chan, username + " please ask for permission before posting links.")
                                     break
                                 elif username in permittedUser:
                                     permittedUser.remove(username)
@@ -116,12 +117,11 @@ class chatbot(Thread):
                             interactions.chat(s, userToPermit + " has permission to post a link.")
 
                         # handle commands available to all viewers in my own channel
-                        if self.getName() == "#" + cfg.OWNER:
-                            if re.search("!mmr", message) != None:
-                                interactions.chat(self.sock, self.getName(), "EU: 4150; NA: 3400 (provisional)")
+                        if re.search("!mmr", message) != None:
+                            interactions.chat(self.sock, self.chan, "EU: 4150; NA: 3400 (provisional)")
 
-                            if re.search("!donation", message) != None or re.search ("!tip", message) != None:
-                                interactions.chat(self.sock, self.getName(), "If you feel like having too much money you can take the weight off by donating a small amount: https://www.streamlabs.com/ryuotaikun")
+                        if re.search("!donation", message) != None or re.search ("!tip", message) != None:
+                            interactions.chat(self.sock, self.chan, "If you feel like having too much money you can take the weight off by donating a small amount: https://www.streamlabs.com/ryuotaikun")
 
                 # Handle User Informations
 
@@ -142,19 +142,19 @@ class chatbot(Thread):
 
                     if sub_type == "sub":
                         #interactions.chat(self.sock, "Thank you for your sub {}! KAPOW".format(display_name))
-                        interactions.chat(self.sock, self.getName(), "KAPOW")
+                        interactions.chat(self.sock, self.chan, "KAPOW")
 
                     elif sub_type == "resub":
                         sub_duration = int(attrDict["msg-param-months"])
                         if sub_duration > 10:
                             sub_duration = 10
                         #interactions.chat(self.sock, "Thank you for your {} months resub {}! KAPOW".format(sub_duration, display_name))
-                        interactions.chat(self.sock, self.getName(), sub_duration * "KAPOW ")
+                        interactions.chat(self.sock, self.chan, sub_duration * "KAPOW ")
 
                     elif sub_type == "subgift":
                         sub_recipient = attrDict["msg-param-recipient-user-name"]
                         #interactions.chat(self.sock, "Thank you {} for gifting a sub to {}! KAPOW".format(display_name, sub_recipient))
-                        interactions.chat(self.sock, self.getName(), "KAPOW")
+                        interactions.chat(self.sock, self.chan, "KAPOW")
 
                 # Handle User Informations
 
