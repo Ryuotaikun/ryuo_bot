@@ -1,6 +1,6 @@
 import cfg
-import time
 import priv
+import console
 import sys
 import socket
 import time
@@ -32,11 +32,9 @@ def closeSocket(sock):
     """
     try:
         sock.close()
-        logging.info("The socket has been closed")
-        print("The socket has been closed")
+        console.info("The socket has been closed")
     except Exception as e:
-        logging.error("Could not close socket")
-        print("Could not close socket")
+        console.error("Could not close socket")
 
 def connectChannel(sock, chan):
     """
@@ -47,8 +45,7 @@ def connectChannel(sock, chan):
     """
     sock.send("JOIN {}\r\n".format(chan).encode("utf-8"))
 
-    print("Successfully connected to {}".format(chan))
-    logging.info("Successfully connected to {}".format(chan))
+    console.info("Successfully connected to {}".format(chan))
 
 def disconnectChannel(sock, chan):
     """
@@ -60,8 +57,7 @@ def disconnectChannel(sock, chan):
     chat(sock, chan, "good night everyone <3")
     sock.send("PART {}\r\n".format(chan).encode("utf-8"))
 
-    print("Successfully disconnected from {}".format(chan))
-    logging.info("Successfully disconnected from {}".format(chan))
+    console.info("Successfully disconnected from {}".format(chan))
 
 def chat(sock, chan, msg):
     """
@@ -72,27 +68,28 @@ def chat(sock, chan, msg):
     msg  -- the message to be send
     """
     sock.send("PRIVMSG {} :{}\r\n".format(chan, msg).encode("utf-8"))
-    logging.info("RyuoBot: {}".format(msg))
-    print("{:<24}: {}".format("RyuoBot", msg))
+    console.info("{:<24}: {}".format("RyuoBot", msg))
 
-def ban(sock, user):
+def ban(sock, chan, user):
     """
     Ban a user from the current channel.
     Keyword arguments:
     sock -- the socket over which to send the ban commend
+    chan -- the channel from which to ban the user
     user -- the user to be banned
     """
     chat(sock, ".ban {}\r\n".format(user))
-    logging.info("banned user {} from channel {}".format(user, cfg.CHAN))
+    console.info("banned user {} from channel {}".format(user, chan))
 
 
-def timeout(sock, user, secs=600):
+def timeout(sock, chan, user, secs=600):
     """
     Time out a user for a set period of time.
     Keyword arguments
     sock -- the socket over which to send the timeout command
+    chan -- the channel from which to time out the user
     user -- the user to be timed out
     secs -- the length of the timeout in seconds (default 600)
     """
     chat(sock, ".timeout {} {}\r\n".format(user, secs))
-    logging.info("timed out user {} for {} seconds".format(user, secs))
+    console.info("timed out user {} in channel {} for {} seconds".format(user, chan, secs))

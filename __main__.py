@@ -6,14 +6,17 @@
 # __main__.py
 import cfg
 import multi
+import console
+import interactions
 import socket
 import logging
-import interactions
-
-print("RyuoBot running...")
-logging.info("RyuoBot running...")
+from colorama import init
 
 def main(): # TODO: implement multithreading and init funktion
+
+    init()
+
+    console.info("RyuoBot running...")
 
     multi.chatbot(cfg.CHAN).start()
 

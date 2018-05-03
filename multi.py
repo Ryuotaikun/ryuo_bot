@@ -1,5 +1,6 @@
 import cfg
 import priv
+import console
 import interactions
 import re
 import time
@@ -35,7 +36,6 @@ class chatbot(Thread):
                 # Ping to Twitch
                 if bitMessage == "PING :tmi.twitch.tv":
                     self.sock.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
-                    print("PONG")
 
                 # Handle Private Messages
 
@@ -101,7 +101,7 @@ class chatbot(Thread):
                             if pattern in message:
                                 if username not in permittedUser:
                                     print("link detected")
-                                    interactions.timeout(self.sock, username, 1)
+                                    interactions.timeout(self.sock, self.chan, username, 1)
                                     print("user -" + username + "- timed out")
                                     interactions.chat(self.sock, self.chan, username + " please ask for permission before posting links.")
                                     break
