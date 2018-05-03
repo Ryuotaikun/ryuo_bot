@@ -53,16 +53,17 @@ def disconnectChannel(sock, chan):
 
     sys.exit()
 
-def chat(sock, msg):
+def chat(sock, chan, msg):
     """
     Send a chat message to the server.
     Keyword arguments:
     sock -- the socket over which to send the message
+    chan -- the channel to send the message to
     msg  -- the message to be send
     """
-    sock.send("PRIVMSG {} :{}\r\n".format(cfg.CHAN, msg).encode("utf-8"))
+    sock.send("PRIVMSG {} :{}\r\n".format(chan, msg).encode("utf-8"))
     logging.info("RyuoBot: {}".format(msg))
-    print("{:<20}: {}".format("RyuoBot", msg))
+    print("{:<24}: {}".format("RyuoBot", msg))
 
 def ban(sock, user):
     """
