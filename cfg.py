@@ -2,6 +2,10 @@
 import console
 import sys
 import logging
+from colorama import init
+
+# inititalize colorama
+init()
 
 # check arguments given
 if len(sys.argv) == 1:
@@ -26,29 +30,15 @@ else:
 MOD = CHAN == '#'+OWNER                        # moderator for own channel
 if MOD: console.info("Moderator Mode aktivated")
 
-ADMIN = [                                      # users allowed to use admin commands
-    "ryuotaikun",
-    "ryuobot"
-]
-
-GREET = [                                      # greetings to react to
-    "( |^)lowhi( |$)",                         # ^ and $ for message start/end
-    "( |^)hi( |$)",
-    "( |^)hey( |$)",
-    "( |^)o7( |$)",
-    "( |^)hello( |$)"
-]
-
-CHARS = [                                      # chars to react to
-    "([ @]|^)ryuotaikun( |$)",
-    "([ @]|^)ryuobot( |$)"
-    "( |^)everyone( |$)",
-    "( |^)chat( |$)"
-]
-
 PATT = [                                       # patterns to time out
     # make sure to prefix quotes with an 'r' to make re handle . , - etc!
     r"https://",
     r"www.",
     r".com", r".de", r".org", r".gov"
+]
+
+ACCEPTED = [                                   # list of channels in which The
+    "#ryuotaikun",                             # the bot is allowed to type
+    "#lowkotv",
+    "#rushIchiroSC2"
 ]

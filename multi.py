@@ -25,9 +25,13 @@ class chatbot(Thread):
 
         while self.active:
 
-            self.readBuffer = self.readBuffer + self.sock.recv(4096).decode()
-            self.messageList = self.readBuffer.split("\n")
-            self.readBuffer = self.messageList.pop()
+            try:
+                self.readBuffer = self.readBuffer + self.sock.recv(4096).decode()
+                self.messageList = self.readBuffer.split("\n")
+                self.readBuffer = self.messageList.pop()
+            except socket.timeout:
+                self.messageList = []
+                console.info("{:<24}: No new messages".format(self.chan[:23]))
 
             for bitMessage in self.messageList:
 
@@ -63,29 +67,32 @@ class chatbot(Thread):
 
                     if re.search("!ryuo exit", message) != None:
                         if username == "nukeofficial":
-                            interactions.chat(self.sock, "I don't take commands from a pleb like NukeOfficial WutFace")
+                            interactions.chat(self.sock, self.chan, "I don't take commands from a pleb like NukeOfficial WutFace")
                         elif username == cfg.OWNER or username == self.chan[1:] or attrDict["mod"] == "1":
                             interactions.disconnectChannel(self.sock, self.chan)
                             interactions.closeSocket(self.sock)
                             self.active = False
 
+                    elif re.search("!ryuo mute", message) != None:
+                        if username == cfg.OWNER or username == self.chan[1:] or attrDict["mod"] == "1":
+                            if self.chan in cfg.ACCEPTED:
+                                cfg.ACCEPTED.remove(self.chan)
+                                console.info("{:<24}: RyuoBot is no longer allowed to type in this channel!".format(self.chan))
+
+                    elif re.search("!ryuo unmute", message) != None:
+                        if username == cfg.OWNER or username == self.chan[1:] or attrDict["mod"] == "1":
+                            if self.chan not in cfg.ACCEPTED:
+                                cfg.ACCEPTED.append(self.chan)
+                                console.info("{:<24}: RyuoBot is now allowed to type in this channel!".format(self.chan))
+
                     if username == cfg.OWNER and re.search("!connect new ", message) != None:
-                        newChannel = "#" + re.sub("!connect new ", "", message)
+                        newChannel = "#" + re.sub("!connect new ", "", message)[:-1]
                         chatbot(newChannel).start()
 
                     # fun commands for me
 
-                    if username == cfg.OWNER and re.search("lowVe", message) != None and re.search("lowHeart", message) != None:
-                        interactions.chat(self.sock, self.chan, "<3 <3 ")
-
                     elif username == cfg.OWNER and re.search("KAPOW", message) != None:
                         interactions.chat(self.sock, self.chan, "KAPOW")
-
-                    elif username == cfg.OWNER and re.search("lowAim", message) != None:
-                        interactions.chat(self.sock, self.chan, "lowBlind")
-
-                    elif username == cfg.OWNER and re.search("lowBlind", message) != None:
-                        interactions.chat(self.sock, self.chan, "lowAim")
 
                     elif re.search("!ryuos wive", message) != None:
                         interactions.chat(self.sock, self.chan, "That's rushIchiroSC2 of course <3")
@@ -94,7 +101,7 @@ class chatbot(Thread):
                     # MOD COMMANDS FOR #RYUOTAIKUN #
                     ################################
 
-                    if self.chan == "#ryuotaikun\r":
+                    if self.chan == "#ryuotaikun":
 
                         # timeout bad words and links
                         for pattern in cfg.PATT :
@@ -142,10 +149,12 @@ class chatbot(Thread):
 
                     if sub_type == "sub":
                         #interactions.chat(self.sock, "Thank you for your sub {}! KAPOW".format(display_name))
+                        console.notification("{:<23}: {} just subscribed!".format(self.chan, display_name))
                         interactions.chat(self.sock, self.chan, "KAPOW")
 
                     elif sub_type == "resub":
                         sub_duration = int(attrDict["msg-param-months"])
+                        console.notification("{:<23}: {} just resubed for {} months!".format(self.chan, display_name, sub_duration))
                         if sub_duration > 10:
                             sub_duration = 10
                         #interactions.chat(self.sock, "Thank you for your {} months resub {}! KAPOW".format(sub_duration, display_name))
@@ -154,6 +163,7 @@ class chatbot(Thread):
                     elif sub_type == "subgift":
                         sub_recipient = attrDict["msg-param-recipient-user-name"]
                         #interactions.chat(self.sock, "Thank you {} for gifting a sub to {}! KAPOW".format(display_name, sub_recipient))
+                        console.notification("{:<23}: {} just gifted a subscription to {}!".format(self.chan, display_name, sub_recipient))
                         interactions.chat(self.sock, self.chan, "KAPOW")
 
                 # Handle User Informations

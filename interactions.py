@@ -14,6 +14,7 @@ def openSocket():
     sock -- the socket to use for sending/recieving messages
     """
     sock = socket.socket()
+    sock.settimeout(2)
     sock.connect((cfg.HOST, cfg.PORT))
     sock.send("PASS {}\r\n".format(priv.PASS).encode("utf-8"))
     sock.send("NICK {}\r\n".format(priv.NICK).encode("utf-8"))
@@ -62,13 +63,17 @@ def disconnectChannel(sock, chan):
 def chat(sock, chan, msg):
     """
     Send a chat message to the server.
+    (only if the bot is allowed to type in that chan)
     Keyword arguments:
     sock -- the socket over which to send the message
     chan -- the channel to send the message to
     msg  -- the message to be send
     """
-    sock.send("PRIVMSG {} :{}\r\n".format(chan, msg).encode("utf-8"))
-    console.info("{:<24}: {}".format("RyuoBot", msg))
+    if chan in cfg.ACCEPTED:
+        sock.send("PRIVMSG {} :{}\r\n".format(chan, msg).encode("utf-8"))
+        console.info("{:<11} - {:<10}: {}".format(chan[:11], "RyuoBot", msg))
+    else:
+        console.error("{:<11} - {:<10}: {} - RyuoBot is not allowed to type in {}!".format(chan[:11], "RyuoBot", msg, chan))
 
 def ban(sock, chan, user):
     """

@@ -10,11 +10,8 @@ import console
 import interactions
 import socket
 import logging
-from colorama import init
 
 def main(): # TODO: implement multithreading and init funktion
-
-    init()
 
     console.info("RyuoBot running...")
 
