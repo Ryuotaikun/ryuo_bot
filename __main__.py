@@ -7,11 +7,8 @@
 import cfg
 import multi
 import console
-import interactions
-import socket
-import logging
 
-def main(): # TODO: implement multithreading and init funktion
+def main():
 
     console.info("RyuoBot running...")
 

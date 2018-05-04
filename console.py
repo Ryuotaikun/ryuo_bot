@@ -3,7 +3,7 @@ import logging
 
 '''
 console.py colors messages in the console to make them easier to read and
-set a logging level for the logfile
+sets a logging level for the logfile
 '''
 
 def log(msg):

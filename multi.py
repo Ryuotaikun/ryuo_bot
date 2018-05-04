@@ -1,5 +1,4 @@
 import cfg
-import priv
 import console
 import interactions
 import re
@@ -31,7 +30,6 @@ class chatbot(Thread):
                 self.readBuffer = self.messageList.pop()
             except socket.timeout:
                 self.messageList = []
-                console.info("{:<24}: No new messages".format(self.chan[:23]))
 
             for bitMessage in self.messageList:
 
@@ -155,10 +153,8 @@ class chatbot(Thread):
                     elif sub_type == "resub":
                         sub_duration = int(attrDict["msg-param-months"])
                         console.notification("{:<24}: {} just resubed for {} months!".format(self.chan, display_name, sub_duration))
-                        if sub_duration > 10:
-                            sub_duration = 10
                         #interactions.chat(self.sock, "Thank you for your {} months resub {}! KAPOW".format(sub_duration, display_name))
-                        interactions.chat(self.sock, self.chan, sub_duration * "KAPOW ")
+                        interactions.chat(self.sock, self.chan, sub_duration//12 * "lowS " + sub_duration%12 * "KAPOW ")
 
                     elif sub_type == "subgift":
                         sub_recipient = attrDict["msg-param-recipient-user-name"]
