@@ -2,6 +2,7 @@ import cfg
 import console
 import interactions
 import re
+import sys
 import time
 import socket
 import logging
@@ -36,14 +37,14 @@ class chatbot(Thread):
                 logging.debug(bitMessage)
 
                 # Ping to Twitch
-                if bitMessage == "PING :tmi.twitch.tv":
+
+                if bitMessage == "PING :tmi.twitch.tv\r":
                     self.sock.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
 
                 # Handle Private Messages
 
                 elif re.search("PRIVMSG", bitMessage) != None:
 
-                # @badges=<badges>;color=<color>;display-name=<display-name>;emotes=<emotes>;id=<id-of-msg>;mod=<mod>;room-id=<room-id>;subscriber=<subscriber>;tmi-sent-ts=<timestamp>;turbo=<turbo>;user-id=<user-id>;user-type=<user-type> :<user>!<user>@<user>.tmi.twitch.tv PRIVMSG #<channel> :<message>
                     CHAT_MSG_COMPILE = re.compile(r":\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 
                     msgInfo, msgSpace, msgContent = bitMessage.partition(" ")
@@ -58,8 +59,7 @@ class chatbot(Thread):
                     username = msgContent.split("!")[0][1:]
                     message = CHAT_MSG_COMPILE.sub("", msgContent)
 
-                    logging.info("{:<11} - {:<10}: {}".format(self.chan[:11], username[:10], message))
-                    print("{:<11} - {:<10}: {}".format(self.chan[:11], username[:10], message))
+                    console.log("{:<11} - {:<10}: {}".format(self.chan[:11], username[:10], message))
 
                     # TODO: Create a yaml file for commands. Implement custom commands created in chat
 
@@ -92,7 +92,7 @@ class chatbot(Thread):
                     elif username == cfg.OWNER and re.search("KAPOW", message) != None:
                         interactions.chat(self.sock, self.chan, "KAPOW")
 
-                    elif re.search("!ryuos wive", message) != None:
+                    elif re.search("!ryuos wife", message) != None:
                         interactions.chat(self.sock, self.chan, "That's rushIchiroSC2 of course <3")
 
                     ################################
@@ -105,9 +105,9 @@ class chatbot(Thread):
                         for pattern in cfg.PATT :
                             if pattern in message:
                                 if username not in permittedUser:
-                                    print("link detected")
+                                    console.info("{:<24}: link detected".format(self.chan))
                                     interactions.timeout(self.sock, self.chan, username, 1)
-                                    print("user -" + username + "- timed out")
+                                    console.info("{:<24}: user -{}- timed out".format(self.chan, username))
                                     interactions.chat(self.sock, self.chan, username + " please ask for permission before posting links.")
                                     break
                                 elif username in permittedUser:
@@ -118,8 +118,8 @@ class chatbot(Thread):
                         if re.search("!permit", message) != None and username in cfg.ADMIN:
                             userToPermit = re.sub("!permit ", "", message)[:-2]
                             permittedUser.append(userToPermit)
-                            print("user -" + userToPermit + "- got permisson to post a link.")
-                            interactions.chat(s, userToPermit + " has permission to post a link.")
+                            console.info("{:<24}: user -{}- got permisson to post a link.".format(self.chan, username))
+                            interactions.chat(self.sock, self.chan, "{} has permission to post a link.".format(userToPermit))
 
                         # handle commands available to all viewers in my own channel
                         if re.search("!mmr", message) != None:
@@ -187,7 +187,11 @@ class chatbot(Thread):
                 # Printing all other Messages for Debugging
 
                 else:
+                    logging.info(bitMessage)
                     print(bitMessage)
+
+            # Force python to print everything in the buffer
+            sys.stdout.flush()
 
             # make sure the bot doesn't get banned for spamming
             time.sleep(1/cfg.RATE)
