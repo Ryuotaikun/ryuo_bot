@@ -3,26 +3,14 @@ Basic Twitch Bot able to moderate a channel and interact with users
 Functions include:
 - Tracking chat history
 - Timing out links and banned words
-- Reacting to custom commands (still hardcoded)
+- Reacting to custom commands
 - Reacting to subscriptions
 
-NOTE:
-At all times, if the bot is going rouge it can be removed from a channel by
-typing "!ryuo exit" in the chat. This command is only available to the
-moderators and the owner of a channel.
+To add RyuoBot to your Twitch Chat, go into a chat where it is already active
+(i.e. www.twitch.tv/Ryuotaikun) and type "!connect new <channel>" in the chat.
 
-Set Up:
-- Create a new folder <fol_name> for the bot and copy the files in
-- Create a Twitch account for the bot or use your own account
-- Generate an OAuth Token (https://twitchapps.com/tmi/)
-- Create a file priv.py with
-  NICK = <account name> #lowercase
-  PASS = <oauth token>
-- Run the program in the terminal with
-  'python <fol_name> <twitch_channel>'
-  or
-  'python3 <fol_name> <twitch_channel>'
+To remove it again just type "!ryuo exit" in your chat. This command is only
+available to the broadcaster and the moderators
 
-You need python3 to run this program
-I am not responsible for any problems with the twitch guidelines or other rules
-if you run and/or edit this bot.
+Currently the standart mode of RyuoBot is muted. If you want it to use the chat
+actively just type "!ryuo unmute". You can mute it again with "!ryuo mute"

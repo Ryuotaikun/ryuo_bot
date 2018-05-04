@@ -149,12 +149,12 @@ class chatbot(Thread):
 
                     if sub_type == "sub":
                         #interactions.chat(self.sock, "Thank you for your sub {}! KAPOW".format(display_name))
-                        console.notification("{:<23}: {} just subscribed!".format(self.chan, display_name))
+                        console.notification("{:<24}: {} just subscribed!".format(self.chan, display_name))
                         interactions.chat(self.sock, self.chan, "KAPOW")
 
                     elif sub_type == "resub":
                         sub_duration = int(attrDict["msg-param-months"])
-                        console.notification("{:<23}: {} just resubed for {} months!".format(self.chan, display_name, sub_duration))
+                        console.notification("{:<24}: {} just resubed for {} months!".format(self.chan, display_name, sub_duration))
                         if sub_duration > 10:
                             sub_duration = 10
                         #interactions.chat(self.sock, "Thank you for your {} months resub {}! KAPOW".format(sub_duration, display_name))
@@ -163,7 +163,7 @@ class chatbot(Thread):
                     elif sub_type == "subgift":
                         sub_recipient = attrDict["msg-param-recipient-user-name"]
                         #interactions.chat(self.sock, "Thank you {} for gifting a sub to {}! KAPOW".format(display_name, sub_recipient))
-                        console.notification("{:<23}: {} just gifted a subscription to {}!".format(self.chan, display_name, sub_recipient))
+                        console.notification("{:<24}: {} just gifted a subscription to {}!".format(self.chan, display_name, sub_recipient))
                         interactions.chat(self.sock, self.chan, "KAPOW")
 
                 # Handle User Informations

@@ -16,7 +16,7 @@ def info(msg):
 
 def notification(msg):
     logging.info(msg)
-    print(colorama.Fore.BLUE + msg + colorama.Style.RESET_ALL)
+    print(colorama.Fore.CYAN + msg + colorama.Style.RESET_ALL)
 
 def error(msg):
     logging.error(msg)
