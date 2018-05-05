@@ -19,6 +19,16 @@ class chatbot(Thread):
         self.readBuffer = ""
         self.permittedUser = []
 
+    # stop the thread from outside
+
+    def stop(self):
+        self.active = False
+        time.sleep(1/cfg.RATE)
+        interactions.disconnectChannel(self.sock, self.chan)
+        interactions.closeSocket(self.sock)
+
+    # main function of the thread
+
     def run(self):
 
         interactions.connectChannel(self.sock, self.chan)
@@ -27,7 +37,7 @@ class chatbot(Thread):
 
             try:
                 self.readBuffer = self.readBuffer + self.sock.recv(4096).decode()
-                self.messageList = self.readBuffer.split("\n")
+                self.messageList = self.readBuffer.split("\r\n")
                 self.readBuffer = self.messageList.pop()
             except socket.timeout:
                 self.messageList = []
@@ -38,7 +48,7 @@ class chatbot(Thread):
 
                 # Ping to Twitch
 
-                if bitMessage == "PING :tmi.twitch.tv\r":
+                if bitMessage == "PING :tmi.twitch.tv":
                     self.sock.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
 
                 # Handle Private Messages
@@ -67,9 +77,11 @@ class chatbot(Thread):
                         if username == "nukeofficial":
                             interactions.chat(self.sock, self.chan, "I don't take commands from a pleb like NukeOfficial WutFace")
                         elif username == cfg.OWNER or username == self.chan[1:] or attrDict["mod"] == "1":
+                            chat(self.sock, self.chan, "good night everyone <3")
+                            self.active = False
+                            time.sleep(1/cfg.RATE)
                             interactions.disconnectChannel(self.sock, self.chan)
                             interactions.closeSocket(self.sock)
-                            self.active = False
 
                     elif re.search("!ryuo mute", message) != None:
                         if username == cfg.OWNER or username == self.chan[1:] or attrDict["mod"] == "1":
@@ -84,7 +96,7 @@ class chatbot(Thread):
                                 console.info("{:<24}: RyuoBot is now allowed to type in this channel!".format(self.chan))
 
                     if username == cfg.OWNER and re.search("!connect new ", message) != None:
-                        newChannel = "#" + re.sub("!connect new ", "", message)[:-1]
+                        newChannel = "#" + re.sub("!connect new ", "", message)
                         chatbot(newChannel).start()
 
                     # fun commands for me
@@ -105,9 +117,9 @@ class chatbot(Thread):
                         for pattern in cfg.PATT :
                             if pattern in message:
                                 if username not in permittedUser:
-                                    console.info("{:<24}: link detected".format(self.chan))
+                                    console.info("{:<24}: link detected".format(self.chan[:24]))
                                     interactions.timeout(self.sock, self.chan, username, 1)
-                                    console.info("{:<24}: user -{}- timed out".format(self.chan, username))
+                                    console.info("{:<24}: user -{}- timed out".format(self.chan[:24], username))
                                     interactions.chat(self.sock, self.chan, username + " please ask for permission before posting links.")
                                     break
                                 elif username in permittedUser:
@@ -118,7 +130,7 @@ class chatbot(Thread):
                         if re.search("!permit", message) != None and username in cfg.ADMIN:
                             userToPermit = re.sub("!permit ", "", message)[:-2]
                             permittedUser.append(userToPermit)
-                            console.info("{:<24}: user -{}- got permisson to post a link.".format(self.chan, username))
+                            console.info("{:<24}: user -{}- got permisson to post a link.".format(self.chan[:24], username))
                             interactions.chat(self.sock, self.chan, "{} has permission to post a link.".format(userToPermit))
 
                         # handle commands available to all viewers in my own channel
@@ -147,19 +159,19 @@ class chatbot(Thread):
 
                     if sub_type == "sub":
                         #interactions.chat(self.sock, "Thank you for your sub {}! KAPOW".format(display_name))
-                        console.notification("{:<24}: {} just subscribed!".format(self.chan, display_name))
+                        console.notification_pos("{:<24}: {} just subscribed!".format(self.chan[:24], display_name))
                         interactions.chat(self.sock, self.chan, "KAPOW")
 
                     elif sub_type == "resub":
                         sub_duration = int(attrDict["msg-param-months"])
-                        console.notification("{:<24}: {} just resubed for {} months!".format(self.chan, display_name, sub_duration))
+                        console.notification_pos("{:<24}: {} just resubed for {} months!".format(self.chan[:24], display_name, sub_duration))
                         #interactions.chat(self.sock, "Thank you for your {} months resub {}! KAPOW".format(sub_duration, display_name))
                         interactions.chat(self.sock, self.chan, sub_duration//12 * "lowS " + sub_duration%12 * "KAPOW ")
 
                     elif sub_type == "subgift":
                         sub_recipient = attrDict["msg-param-recipient-user-name"]
                         #interactions.chat(self.sock, "Thank you {} for gifting a sub to {}! KAPOW".format(display_name, sub_recipient))
-                        console.notification("{:<24}: {} just gifted a subscription to {}!".format(self.chan, display_name, sub_recipient))
+                        console.notification_pos("{:<24}: {} just gifted a subscription to {}!".format(self.chan[:24], display_name, sub_recipient))
                         interactions.chat(self.sock, self.chan, "KAPOW")
 
                 # Handle User Informations
@@ -183,6 +195,16 @@ class chatbot(Thread):
                     #if re.search("JOIN", bitMessage) and re.search("ryuotaikun", bitMessage):
                     #    interactions.chat(self.sock, "All hail the god of social incompetence, Ryuotaikun! DendiFace")
                     pass
+
+                elif re.search("CLEARCHAT", bitMessage) != None:
+
+                    BAN_MSG_COMPILE = re.compile(r":tmi\.twitch\.tv CLEARCHAT #\w+ :")
+
+                    banInfo, banSpace, banContent = bitMessage[1:].partition(" ")
+
+                    username = BAN_MSG_COMPILE.sub("", banContent)
+
+                    console.notification_neg("{:<24}: {} just got banned from {}!".format(self.chan[:24], username, self.chan))
 
                 # Printing all other Messages for Debugging
 

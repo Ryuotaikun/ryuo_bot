@@ -55,9 +55,7 @@ def disconnectChannel(sock, chan):
     chan -- the channel from which to disconnect
     sock -- the socket over which to send the disconnect request
     """
-    chat(sock, chan, "good night everyone <3")
     sock.send("PART {}\r\n".format(chan).encode("utf-8"))
-
     console.info("Successfully disconnected from {}".format(chan))
 
 def chat(sock, chan, msg):
