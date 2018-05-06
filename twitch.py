@@ -27,13 +27,18 @@ class chatbot(Thread):
         interactions.disconnectChannel(self.sock, self.chan)
         interactions.closeSocket(self.sock)
 
+    # send message from MainThread
+
+    def send(self, msg):
+        interactions.chat(self.sock, self.chan, msg)
+
     # main function of the thread
 
     def run(self):
 
         # get settings and commands from file
 
-        # yaml.openfile()
+        # file.getFromFile()
 
         # connect to channel
 

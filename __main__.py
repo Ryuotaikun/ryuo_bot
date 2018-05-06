@@ -20,14 +20,20 @@ def main():
     '''
 
     while True:
+
         command = input()
+
         if command[0] == "#":
             for entry in t.enumerate():
                 if entry.getName() == command:
                     console.sys_info_head("RyuoBot is already connected to {}".format(command))
                     break
             else:
+                activeChan = command
                 twitch.chatbot(command).start()
+
+        elif re.search ("!active", command) != None:
+            activeChan = re.sub(r"!active ", "", command)
 
         elif command == "!list":
             console.sys_info_head("Currently running Threads:")
@@ -51,4 +57,13 @@ def main():
                     console.sys_info_head("{} was stopped from the console".format(entry.getName()))
             console.sys_info("All Threads have been stopped and the program will exit!")
             sys.exit()
+
+        else:
+            for entry in t.enumerate():
+                if entry.getName() == activeChan:
+                    entry.send(command)
+                    break
+            else:
+                console.sys_info_head("There is no connection to the active Channel")
+
 main()
