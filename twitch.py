@@ -31,6 +31,12 @@ class chatbot(Thread):
 
     def run(self):
 
+        # get settings and commands from file
+
+        # yaml.openfile()
+
+        # connect to channel
+
         interactions.connectChannel(self.sock, self.chan)
 
         while self.active:

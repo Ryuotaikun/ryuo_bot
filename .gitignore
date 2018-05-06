@@ -4,5 +4,5 @@
 # ignore priv.py
 priv.py
 
-# ignore log files
+# ignore all log files
 *.log

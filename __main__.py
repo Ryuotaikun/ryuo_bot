@@ -5,7 +5,7 @@
 
 # __main__.py
 import cfg
-import multi
+import twitch
 import console
 import re
 import sys
@@ -27,7 +27,7 @@ def main():
                     console.sys_info_head("RyuoBot is already connected to {}".format(command))
                     break
             else:
-                multi.chatbot(command).start()
+                twitch.chatbot(command).start()
 
         elif command == "!list":
             console.sys_info_head("Currently running Threads:")
