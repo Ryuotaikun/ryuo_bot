@@ -26,6 +26,12 @@ def notification_neg(msg):
     logging.info(msg)
     print(colorama.Fore.YELLOW + msg + colorama.Style.RESET_ALL)
 
+# channel notifications (hosts, slowmode, etc)
+
+def notification_chan(msg):
+    logging.info(msg)
+    print(colorama.Fore.MAGENTA + msg + colorama.Style.RESET_ALL)
+
 # error notifications
 
 def error(msg):

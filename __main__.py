@@ -4,14 +4,17 @@
 # With Help from iamflemming
 
 # __main__.py
-import cfg
+import file
 import twitch
 import console
 import re
 import sys
+import yaml
 import threading as t
 
 def main():
+
+    file.restore()
 
     console.info("RyuoBot running...")
 
@@ -19,38 +22,42 @@ def main():
     Main Thread contains commands to control the other Threads from the console
     '''
 
+    activeChan = "#ryuotaikun"   # standart channel to type in
+
     while True:
 
-        command = input()
+        input_string = input()
 
-        if command[0] == "#":
+        if input_string[0] == "#":
             for entry in t.enumerate():
-                if entry.getName() == command:
-                    console.sys_info_head("RyuoBot is already connected to {}".format(command))
+                if entry.getName() == input_string:
+                    console.sys_info_head("RyuoBot is already connected to {}".format(input_string))
                     break
             else:
-                activeChan = command
-                twitch.chatbot(command).start()
+                activeChan = input_string
+                file.addChannel(input_string)
+                twitch.chatbot(input_string, "lurking").start()
 
-        elif re.search ("!active", command) != None:
-            activeChan = re.sub(r"!active ", "", command)
+        elif re.search ("!active", input_string) != None:
+            activeChan = re.sub(r"!active ", "", input_string)
 
-        elif command == "!list":
+        elif input_string == "!list":
             console.sys_info_head("Currently running Threads:")
             for entry in t.enumerate():
                 console.sys_info(entry.getName())
 
-        elif re.search("!exit", command) != None:
-            channel = re.sub(r"!exit ", "", command)
+        elif re.search("!exit", input_string) != None:
+            channel = re.sub(r"!exit ", "", input_string)
             for entry in t.enumerate():
                 if entry.getName() == channel:
                     entry.stop()
+                    file.removeChannel(channel)
                     console.sys_info_head("{} was stopped from the console".format(channel))
                     break
             else:
                 console.sys_info_head("There is no Thread with the name {}!".format(channel))
 
-        elif command == "!end":
+        elif input_string == "!end":
             for entry in t.enumerate():
                 if entry.getName() != "MainThread":
                     entry.stop()
@@ -61,7 +68,7 @@ def main():
         else:
             for entry in t.enumerate():
                 if entry.getName() == activeChan:
-                    entry.send(command)
+                    entry.send(input_string)
                     break
             else:
                 console.sys_info_head("There is no connection to the active Channel")

@@ -6,6 +6,9 @@ import socket
 import time
 import logging
 
+IRC_HOST  = "irc.chat.twitch.tv"
+IRC_PORT  = 6667
+
 def openSocket():
     """
     Opens Socket
@@ -15,7 +18,7 @@ def openSocket():
     """
     sock = socket.socket()
     sock.settimeout(2)
-    sock.connect((cfg.HOST, cfg.PORT))
+    sock.connect((IRC_HOST, IRC_PORT))
     sock.send("PASS {}\r\n".format(priv.PASS).encode("utf-8"))
     sock.send("NICK {}\r\n".format(priv.NICK).encode("utf-8"))
 
@@ -31,11 +34,8 @@ def closeSocket(sock):
     Keyword arguments:
     sock -- the socket to close
     """
-    try:
-        sock.close()
-        console.info("The socket has been closed")
-    except Exception as e:
-        console.error("Could not close socket")
+    sock.close()
+    console.info("The socket has been closed")
 
 def connectChannel(sock, chan):
     """
