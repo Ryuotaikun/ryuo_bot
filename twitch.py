@@ -34,11 +34,38 @@ class chatbot(Thread):
     def send(self, msg):
         interactions.chat(self.sock, self.chan, msg)
 
-    # sending an error if a bitMessage can't be processed
+    def compileMessage(self, type, msg):
 
-    def cannotProcess(self, type, message):
-        console.error("Recieved a {} that can't be processed:".format(type))
-        print("-\r\n{}\r\n-".format(message))
+        if type == "PRIVMSG":
+            CHAT_MSG_COMPILE = re.compile(r":\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
+
+        elif type == "USERNOTICE":
+            CHAT_NOTICE_COMPILE = re.compile(r":tmi\.twitch\.tv USERNOTICE #\w+ :")
+
+        elif type == "USERSTATE":
+            pass
+
+        elif type == "NOTICE":
+            CHAN_NOTICE_COMPILE = re.compile(r":tmi\.twitch\.tv NOTICE #\w+ :")
+            pass
+
+        elif type == "ROOMSTATE":
+            pass
+
+        elif type == "MODE":
+            pass
+
+        elif type == "HOSTTARGET":
+            TARGET_MSG_COMPILE = re.compile(r":tmi\.twitch\.tv HOSTTARGET #\w+ :")
+
+        elif type == "JOIN" or type == "PART":
+            pass
+
+        elif type == "CLEARCHAT":
+            BAN_MSG_COMPILE = re.compile(r":tmi\.twitch\.tv CLEARCHAT #\w+ :")
+
+        else:
+            pass
 
 
     # main function of the thread
@@ -72,6 +99,16 @@ class chatbot(Thread):
                 # Handle Private Messages
 
                 elif re.search("PRIVMSG", bitMessage) != None:
+
+                    if self.mode == "lurking":
+                        pass
+
+                    elif self.mode == "active":
+                        pass
+
+                    elif self.mode == "verified":
+                        pass
+
 
                     CHAT_MSG_COMPILE = re.compile(r":\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 
@@ -168,7 +205,7 @@ class chatbot(Thread):
 
                 elif re.search("USERNOTICE", bitMessage) != None:
 
-                    CHAT_NOTICE_COMPILE = re.compile(r"\.tmi\.twitch\.tv USERNOTICE #\w+ :")
+                    CHAT_NOTICE_COMPILE = re.compile(r":tmi\.twitch\.tv USERNOTICE #\w+ :")
 
                     noticeInfo, noticeSpace, noticeContent = bitMessage.partition(" ")
 
@@ -223,9 +260,6 @@ class chatbot(Thread):
                         host_target = message.split(" ")[0]
                         console.notification_chan("{:<24}: {} is no longer hosting {}!".format(self.chan[:24], self.chan, host_target))
 
-                    else:
-                        chatbot.cannotProcess(self, "PRIVMSG", bitMessage)
-
                 # Handle Channel Informations
 
                 elif re.search("ROOMSTATE", bitMessage) != None:
@@ -254,7 +288,6 @@ class chatbot(Thread):
 
                 elif re.search("MODE", bitMessage) != None:
                     pass
-                    #chatbot.cannotProcess(self, "MODE", bitMessage)
 
                 # Handle Hosting Informations
 
