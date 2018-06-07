@@ -58,7 +58,7 @@ def disconnectChannel(sock, chan):
     sock.send("PART {}\r\n".format(chan).encode("utf-8"))
     console.info("Successfully disconnected from {}".format(chan))
 
-def chat(sock, chan, msg):
+def chat(sock, chan, msg, excuse=False):
     """
     Send a chat message to the server.
     (only if the bot is allowed to type in that chan)
@@ -67,11 +67,11 @@ def chat(sock, chan, msg):
     chan -- the channel to send the message to
     msg  -- the message to be send
     """
-    if chan in cfg.ACCEPTED:
+    if chan in cfg.ACCEPTED or excuse:
         sock.send("PRIVMSG {} :{}\r\n".format(chan, msg).encode("utf-8"))
-        console.info("{:<11} - {:<10}: {}".format(chan[:11], "RyuoBot", msg))
+        console.info("TWITCH : {:<11} - {:<10}: {}".format(chan[:11], "RyuoBot", msg))
     else:
-        console.error("{:<11} - {:<10}: {} - RyuoBot is not allowed to type in {}!".format(chan[:11], "RyuoBot", msg, chan))
+        console.error("TWITCH : {:<11} - {:<10}: {} - RyuoBot is not allowed to type in {}!".format(chan[:11], "RyuoBot", msg, chan))
 
 def ban(sock, chan, user):
     """

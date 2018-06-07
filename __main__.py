@@ -7,14 +7,27 @@
 import file
 import twitch
 import console
+import discordBot
 import re
 import sys
-import yaml
+import time
 import threading as t
 
 def main():
 
+    console.info("RyuoBot starting...")
+
+    discordBot.discordbot().start()
+
+    time.sleep(.1)
+
+    console.info("Connected to Discord.")
+
     file.restore()
+
+    time.sleep(.1)
+
+    console.info("Reconnected to Twitch.")
 
     console.info("RyuoBot running...")
 
@@ -36,10 +49,19 @@ def main():
             else:
                 activeChan = input_string
                 file.addChannel(input_string)
-                twitch.chatbot(input_string, "lurking").start()
+                twitch.twitchbot(input_string, "lurking").start()
 
         elif re.search ("!active", input_string) != None:
             activeChan = re.sub(r"!active ", "", input_string)
+
+        elif re.search ("!status active", input_string) != None:
+            chan = re.sub(r"!status active ", "", input_string)
+            file.updateStatus(chan, "active")
+
+
+        elif re.search ("!verify", input_string) != None:
+            chan = re.sub(r"!verify ", "", input_string)
+            file.updateStatus(chan, "verified")
 
         elif input_string == "!list":
             console.sys_info_head("Currently running Threads:")
@@ -51,7 +73,6 @@ def main():
             for entry in t.enumerate():
                 if entry.getName() == channel:
                     entry.stop()
-                    file.removeChannel(channel)
                     console.sys_info_head("{} was stopped from the console".format(channel))
                     break
             else:
