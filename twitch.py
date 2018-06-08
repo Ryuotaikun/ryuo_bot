@@ -181,7 +181,7 @@ class twitchbot(Thread):
                         #    interactions.chat(self.sock, self.chan, "Spotify: https://goo.gl/w7NEJR lowDrink")
 
                         if re.search("!ryuobot", message.lower()) != None:
-                            interactions.chat(self.sock, self.chan, "I am an experimental version of a Twitch Bot. Read more about me here: https://www.github.com/Ryuotaikun/ryuo_bot")
+                            interactions.chat(self.sock, self.chan, "I am an experimental version of a Twitch/Discord Bot. Read more about me here: https://www.github.com/Ryuotaikun/ryuo_bot")
 
                         if re.search("!mmr", message.lower()) != None:
                             interactions.chat(self.sock, self.chan, "EU: 4200; NA: 3750")
