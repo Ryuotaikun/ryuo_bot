@@ -11,6 +11,8 @@ from threading import Thread
 
 class twitchbot(Thread):
 
+    # initialize thread
+
     def __init__(self, chan, mode):
         Thread.__init__(self)
         self.active = True

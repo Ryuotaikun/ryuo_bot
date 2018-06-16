@@ -11,13 +11,16 @@ import discordBot
 import re
 import sys
 import time
+import asyncio
+import discord
 import threading as t
 
 def main():
 
     console.info("RyuoBot starting...")
 
-    discordBot.discordbot().start()
+    client = discord.Client(loop=asyncio.new_event_loop())
+    discordBot.discordbot(client).start()
 
     time.sleep(.1)
 
@@ -41,7 +44,7 @@ def main():
 
         input_string = input()
 
-        if input_string[0] == "#":
+        if len(input_string) > 0 and input_string[0] == "#":
             for entry in t.enumerate():
                 if entry.getName() == input_string:
                     console.sys_info_head("RyuoBot is already connected to {}".format(input_string))
@@ -78,13 +81,20 @@ def main():
             else:
                 console.sys_info_head("There is no Thread with the name {}!".format(channel))
 
+        # TODO: implement Discord exit in console
+
         elif input_string == "!end":
+            client.logout()
             for entry in t.enumerate():
-                if entry.getName() != "MainThread":
+                if entry.getName().startswith("#"):
                     entry.stop()
                     console.sys_info_head("{} was stopped from the console".format(entry.getName()))
-            console.sys_info("All Threads have been stopped and the program will exit!")
+            console.sys_info("All Twitch Threads have been stopped and the program will exit!")
+            for entry in t.enumerate():
+                console.sys_info(entry.getName())
             sys.exit()
+            for entry in t.enumerate():
+                console.sys_info(entry.getName())
 
         else:
             for entry in t.enumerate():
